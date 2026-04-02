@@ -75,5 +75,20 @@ HeatFlow doesn't use lagging indicators like RSI or MACD. It uses **Level 2 Orde
 
 ---
 
+## ⚠️ Disclaimer
+
+**HeatFlow is an educational tool and not financial advice.** This software should not be used as advice or encouragement to make real money investments or trades.
+
+### Key Terms:
+- **No Guarantees:** The signals and analysis provided by HeatFlow are not 100% accurate. While it works to predict market movements, it does not provide guaranteed results.
+- **Full Risk Responsibility:** You are solely responsible for any financial losses incurred by using this software. Past performance does not guarantee future results.
+- **No Software Warranty:** This project is provided "as is." The creator is not responsible for any damages arising from errors, data loss, or software failure.
+- **Not Legal/Financial Advice:** This tool is not a financial advisor, investment advisor, or attorney. Before making trading decisions, consult an independent financial professional.
+- **Understand the Risk:** Cryptocurrency and futures trading carry extreme risk. Never invest money you cannot afford to lose.
+
+**By using this software, users accept all risks and release the creator and contributors from any liability for losses or damages caused by this software.**
+
+---
+
 ## 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
