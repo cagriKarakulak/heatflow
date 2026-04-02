@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Binance Futures Real-Time Order Book Heatmap, Volume Profile & OrderFlow Visualization">
+    <title>HeatFlow — Real-Time Order Book Heatmap</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- ═══════════════ TOP BAR ═══════════════ -->
+        <header class="top-bar" id="top-bar">
+            <div class="top-bar-left">
+                <!-- Logo -->
+                <div class="logo">
+                    <span class="logo-icon">🔥</span>
+                    <span class="logo-text">HEATFLOW</span>
+                </div>
+
+                <span class="divider"></span>
+
+                <!-- Symbol Selector -->
+                <div class="symbol-selector">
+                    <button class="symbol-btn" id="symbol-btn">
+                        <span id="current-symbol">BTCUSDT</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    <div class="symbol-dropdown" id="symbol-dropdown">
+                        <div class="symbol-search-wrapper">
+                            <input type="text"
+                                   class="symbol-search"
+                                   id="symbol-search"
+                                   placeholder="Search symbol..."
+                                   autocomplete="off">
+                        </div>
+                        <div class="symbol-list" id="symbol-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <span class="divider"></span>
+
+                <!-- Ticker -->
+                <div class="ticker-info">
+                    <span class="ticker-price" id="ticker-price">---</span>
+                </div>
+
+                <span class="divider"></span>
+
+                <!-- Quick Stats -->
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="statSpread">Spread</span>
+                        <span class="stat-value gold" id="stat-spread">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="statBidDepth">Bid Depth</span>
+                        <span class="stat-value green" id="stat-bid-depth">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="statAskDepth">Ask Depth</span>
+                        <span class="stat-value red" id="stat-ask-depth">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="statWhales">Whales</span>
+                        <span class="stat-value gold" id="stat-whales">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label" data-i18n="statData">Data</span>
+                        <span class="stat-value" id="stat-mps">0/s</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="top-bar-right">
+                <!-- Signal HUD Toggle -->
+                <button id="btn-signal-toggle" class="icon-btn" title="Signal HUD" style="font-size:12px;font-weight:700;letter-spacing:.5px;padding:3px 8px;border:1px solid rgba(255,255,255,.1);border-radius:5px;color:#8892a4;">⚡ SIGNAL</button>
+                <!-- Lang Button -->
+                <button id="btn-lang" class="icon-btn tooltip-btn" title="Language / Dil">TR</button>
+                <!-- Info Button -->
+                <button id="btn-info" class="icon-btn tooltip-btn" title="Info" data-i18n="btnInfo">❓</button>
+                <!-- Settings Button -->
+                <button id="btn-settings" class="icon-btn" title="Ayarlar">
+                    ⚙️
+                </button>
+                <!-- Connection Status -->
+                <div class="connection-status">
+                    <span class="connection-dot disconnected" id="connection-dot"></span>
+                    <span class="connection-label disconnected" id="connection-label">CONNECTING...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══════════════ SETTINGS MODAL ═══════════════ -->
+        <div id="settings-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 data-i18n="settingsTitle">HeatFlow Ayarları</h3>
+                    <button id="btn-close-settings" class="close-btn">✖</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label data-i18n="whaleThreshold">Balina İşlemi Eşiği (Whale Threshold)</label>
+                        <div class="setting-control">
+                            <input type="range" id="setting-whale-threshold" min="10000" max="500000" step="10000" value="100000">
+                            <span id="label-whale-threshold" class="setting-value">$100K</span>
+                        </div>
+                        <small data-i18n="whaleDesc">Bu eşiğin üzerindeki işlemler işaretlenir ve etiketlenir.</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label data-i18n="heatmapContrast">Heatmap Kontrast Oranı</label>
+                        <div class="setting-control">
+                            <input type="range" id="setting-heatmap-curve" min="0.3" max="1.0" step="0.05" value="0.6">
+                            <span id="label-heatmap-curve" class="setting-value">0.60</span>
+                        </div>
+                        <small data-i18n="heatmapDesc">Düşük değerler zayıf emirleri gösterirken, yüksek değerler sadece büyük blokları görünür kılar.</small>
+                    </div>
+
+                    <div class="setting-group">
+                        <label data-i18n="animQuality">Animasyon Kalitesi</label>
+                        <div class="setting-control toggle-switch">
+                            <span data-i18n="perfMode">Performans Modu (Düşük Sistemler)</span>
+                            <input type="checkbox" id="setting-perf-mode">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════ INFO MODAL ═══════════════ -->
+        <div id="info-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 data-i18n="infoTitle">Hızlı Başlangıç Kılavuzu</h3>
+                    <button id="btn-close-info" class="close-btn">✖</button>
+                </div>
+                <div class="modal-body" style="line-height:1.5;">
+                    <p style="font-size:12px" data-i18n="infoDesc">HeatFlow gerçek zamanlı mikro-yapı analiz platformudur.</p>
+                    <ul style="padding-left:16px; margin-top:12px; font-size:11px; color:var(--text-secondary); opacity:0.9; gap: 8px; display: flex; flex-direction: column;">
+                        <li data-i18n="infoShield">🛡️ <b>Shield:</b> Devasa limit emirler piyasa alımlarına rağmen dayandığında çıkar (Iceberg/Absorption).</li>
+                        <li data-i18n="infoGhost">👻 <b>Ghost:</b> İşlem görmeden aniden silinen büyük limit emirleri çizer (Spoofing).</li>
+                        <li data-i18n="infoReversal">⚠️ <b>Reversal:</b> Delta ve fiyat arasında oluşan uyuşmazlıklarda dönüş sinyali yakar.</li>
+                        <li data-i18n="infoCascade">💥 <b>Cascade:</b> Zincirleme stop patlamaları olduğunda ekran aydınlaması.</li>
+                        <li data-i18n="infoPoc">🧲 <b>Global POC:</b> Yatay eksende en çok işlemin yaşandığı merkezi destek/direnç çizgisidir.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════ CASCADE NUCLEAR FLASH ═══════════════ -->
+        <div id="cascade-flash" class="cascade-flash"></div>
+        <div id="cascade-alert" class="cascade-alert">💥 CASCADING STOPS!</div>
+
+        <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+        <div id="momentum-glow" class="momentum-glow"></div>
+        
+        <main class="main-content" id="main-content">
+            <!-- Order Flow Panel (Left) -->
+            <div class="panel" id="orderflow-panel">
+                <canvas id="orderflow-canvas"></canvas>
+            </div>
+
+            <!-- Heatmap Panel (Center) -->
+            <div class="panel" id="heatmap-panel">
+                <div class="watermark">HEATFLOW</div>
+                <canvas id="heatmap-canvas"></canvas>
+            </div>
+
+            <!-- Volume Profile Panel (Right) -->
+            <div class="panel" id="volume-panel">
+                <canvas id="volume-canvas"></canvas>
+            </div>
+        </main>
+
+        <!-- ═══════════════ BOTTOM BAR ═══════════════ -->
+        <footer class="bottom-bar">
+            <div class="bottom-bar-left">
+                <span class="fps-counter" id="fps-counter">-- FPS</span>
+                <span class="divider" style="height:14px"></span>
+                <div class="color-scale-legend">
+                    <span class="color-scale-label">Low</span>
+                    <div class="color-scale-bar"></div>
+                    <span class="color-scale-label">High</span>
+                </div>
+            </div>
+            <div class="bottom-bar-right">
+                <button id="btn-sound-toggle" class="lock-btn">
+                    <span class="icon">🔇</span><span data-i18n="soundOff">Sound Off</span>
+                </button>
+                <button id="btn-lock-scroll" class="lock-btn locked">
+                    <span class="icon">🔒</span><span data-i18n="autoScroll">Auto-Scroll</span>
+                </button>
+                <span class="divider" style="height:14px; margin:0 8px;"></span>
+                <span class="shortcut-hint"><kbd>Scroll</kbd> <span data-i18n="shortcutZoomY">Zoom Y</span></span>
+                <span class="shortcut-hint"><kbd>Shift+Scroll</kbd> <span data-i18n="shortcutZoomX">Zoom X</span></span>
+                <span class="shortcut-hint"><kbd>R</kbd> <span data-i18n="shortcutReset">Reset View</span></span>
+                <span class="shortcut-hint"><kbd>Mid-Click Drag</kbd> <span data-i18n="shortcutPan">Pan</span></span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ═══════════════ SCRIPTS ═══════════════ -->
+    <script src="js/i18n.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/websocket.js"></script>
+    <script src="js/orderbook.js"></script>
+    <script src="js/tradeflow.js"></script>
+    <script src="js/heatmap-renderer.js"></script>
+    <script src="js/volume-renderer.js"></script>
+    <script src="js/orderflow-renderer.js"></script>
+    <script src="js/signal-engine.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
