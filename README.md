@@ -5,7 +5,7 @@
 
 HeatFlow is an advanced, institutional-grade Order Flow analysis dashboard and Real-Time Order Book Heatmap. It is designed to provide high-frequency trading insights by visualizing market micro-structure, liquidity dynamics, and order book imbalances in real-time.
 
-Inspired by professional institutional methodologies (e.g., Fabio Valantini's flow analysis), HeatFlow decodes the tape and order book to filter out retail noise and identify high-probability trading setups.
+Inspired by professional institutional methodologies, HeatFlow decodes the tape and order book to filter out retail noise and identify high-probability trading setups.
 
 ---
 
